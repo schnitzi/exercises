@@ -1,0 +1,11 @@
+# The official example data supplied to applicants.
+
+Employee Name	Experienced?	Mon	Tue	Wed 	Thur	Fri	Sat	Sun
+Phil	Y	Either	Either	Either	Either	Either	Either	Either
+Dave	N	None	None	Early	Early	Early	Early	Early
+Sandra	N	Either	Either	Either	Either	Either	None	None
+Belinda	Y	Late	Late	Late	Late	None	Either	Either
+Roger	Y	Either	Either	None	Early	Late	None	None
+Stef	N	None	None	Early	Early	Either	Either	Either
+Cassie	Y	None	None	None	Early	Early	None	None
+Bill	N	Late	None	Late	None	None	Either	Early
