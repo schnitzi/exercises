@@ -19,5 +19,6 @@ public class PreferencesUnitTest {
         Schedule schedule = ROSTERING.schedule(preferences);
         Assert.assertTrue(schedule.isFilled());
         Assert.assertEquals(schedule.getPain(), 0);
+        System.out.println(schedule);
     }
 }

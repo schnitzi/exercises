@@ -5,13 +5,15 @@ package com.cxense;
  */
 public class Slot {
 
-    public static final int EARLY = 0;
-    public static final int LATE = 1;
+    public enum Shift {
+        EARLY,
+        LATE
+    };
 
     private final int day;
-    private final int shift;
+    private final Shift shift;
 
-    public Slot(final int day, final int shift) {
+    public Slot(final int day, final Shift shift) {
         this.day = day;
         this.shift = shift;
     }
@@ -20,12 +22,12 @@ public class Slot {
         return day;
     }
 
-    public int getShift() {
+    public Shift getShift() {
         return shift;
     }
 
-    public int getOtherShift() {
-        return shift == EARLY ? LATE : EARLY;
+    public Slot getOtherShift() {
+        return new Slot(day, shift == Shift.EARLY ? Shift.LATE : Shift.EARLY);
     }
 
     @Override
@@ -44,7 +46,7 @@ public class Slot {
     @Override
     public int hashCode() {
         int result = day;
-        result = 31 * result + shift;
+        result = 31 * result + shift.ordinal();
         return result;
     }
 }

@@ -8,23 +8,17 @@ import java.util.*;
  */
 public class Preferences {
 
-    final List<Employee> employees = new ArrayList<>();
+    private final List<Employee> employees = new ArrayList<>();
     private static final Comparator<Employee> PICKIEST = new Comparator<Employee>() {
         @Override
         public int compare(Employee o1, Employee o2) {
             return Integer.compare(o1.getDifficulty(), o2.getDifficulty());
         }
     };
-    private Map<Slot, SortedSet<Employee>> possibleEmployeesBySlot;
+    private final Map<Slot, List<Employee>> availableEmployeesBySlot = new HashMap<>();
 
     public Preferences(final File file) throws IOException {
 
-        loadEmployees(file);
-
-        buildLookups();
-    }
-
-    private void loadEmployees(File file) throws IOException {
         try (final FileReader fr = new FileReader(file);
             final BufferedReader br = new BufferedReader(fr)) {
 
@@ -36,21 +30,38 @@ public class Preferences {
 
             // Read in the preferences.
             while ((line = br.readLine()) != null) {
-                employees.add(new Employee(line));
+                final StringTokenizer tokenizer = new StringTokenizer(line, "\t");
+                final String name = tokenizer.nextToken();
+                final boolean experienced = tokenizer.nextToken().equals("Y");
+                final PreferenceForDay[] dayPreferences = new PreferenceForDay[7];
+                for (int i=0; i<7; i++) {
+                    dayPreferences[i] = PreferenceForDay.valueOf(tokenizer.nextToken().toUpperCase());
+                }
+
+                addEmployee(name, experienced, dayPreferences);
             }
         }
     }
 
-    private void buildLookups() {
-
-        possibleEmployeesBySlot = new HashMap<>();
-        for (Employee employee : employees) {
-            for (PreferenceForDay dayPreference : employee.dayPreferences) {
-
-                if ()
-
+    private void addEmployee(String name, boolean experienced, PreferenceForDay[] dayPreferences) {
+        Employee employee = new Employee(name, experienced, dayPreferences);
+        employees.add(employee);
+        for (int day=0; day<7; day++) {
+            PreferenceForDay dayPreference = dayPreferences[day];
+            if (dayPreference != PreferenceForDay.NONE) {
+                saveEmployeeAsAvailable(employee, new Slot(day, Slot.Shift.EARLY));
+                saveEmployeeAsAvailable(employee, new Slot(day, Slot.Shift.LATE));
             }
         }
+    }
+
+    private void saveEmployeeAsAvailable(final Employee employee, final Slot slot) {
+        List<Employee> employees = availableEmployeesBySlot.get(slot);
+        if (employees == null) {
+            employees = new ArrayList<>();
+            availableEmployeesBySlot.put(slot, employees);
+        }
+        employees.add(employee);
     }
 
     public List<Employee> getEmployeesHardestToAssignFirst() {
@@ -60,11 +71,20 @@ public class Preferences {
     }
 
     public List<Employee> getAvailableEmployees(Slot slot) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        return availableEmployeesBySlot.get(slot);
     }
 
-    public Stack<Slot> getShiftsHardestToAssignFirst() {
-
+    public Stack<Slot> getSlotsHardestToAssignFirst() {
+        Stack<Slot> slots = new Stack<>();
+        slots.addAll(availableEmployeesBySlot.keySet());
+        Collections.sort(slots, new Comparator<Slot>() {
+            @Override
+            public int compare(Slot o1, Slot o2) {
+                return Integer.compare(availableEmployeesBySlot.get(o1).size(),
+                        availableEmployeesBySlot.get(o2).size());
+            }
+        });
+        return slots;
     }
 
     public enum PreferenceForDay {
@@ -72,37 +92,5 @@ public class Preferences {
         EITHER,
         EARLY,
         LATE
-    }
-
-    public static class Employee {
-
-        final String name;
-        final boolean experienced;
-        final PreferenceForDay[] dayPreferences = new PreferenceForDay[7];
-
-        public Employee(final String line) {
-            final StringTokenizer tokenizer = new StringTokenizer(line, "\t");
-            name = tokenizer.nextToken();
-            experienced = tokenizer.nextToken().equals("Y");
-            for (int i=0; i<7; i++) {
-                dayPreferences[i] = PreferenceForDay.valueOf(tokenizer.nextToken().toUpperCase());
-            }
-        }
-
-        public int getDifficulty() {
-            int difficulty = 0;
-            for (PreferenceForDay dayPreference : dayPreferences) {
-                if (dayPreference == PreferenceForDay.NONE) {
-                    difficulty += 2;
-                } else if (dayPreference == PreferenceForDay.EARLY || dayPreference == PreferenceForDay.LATE) {
-                    difficulty += 1;
-                }
-            }
-            return difficulty;
-        }
-
-        public PreferenceForDay getPreference(int day) {
-            return dayPreferences[day];
-        }
     }
 }

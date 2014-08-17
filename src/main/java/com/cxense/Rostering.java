@@ -13,14 +13,14 @@ public class Rostering {
         // Could choose to loop through the days, trying to assign employees to each, but best
         // to try to satisfy the harder requirement that every employee gets at least one scheduled
         // day first.  So get the list of employees, pickiest first.
-        final Stack<Preferences.Employee> employeesHardestToAssignFirst = new Stack<>();
+        final Stack<Employee> employeesHardestToAssignFirst = new Stack<>();
         employeesHardestToAssignFirst.addAll(preferences.getEmployeesHardestToAssignFirst());
 
         // Create the schedule to populate.
         final Schedule schedule = new Schedule();
 
         // Gather all the shifts we have to assign, with the ones with the fewest employee options first.
-        Stack<Slot> shiftsToAssign = preferences.getShiftsHardestToAssignFirst();
+        Stack<Slot> shiftsToAssign = preferences.getSlotsHardestToAssignFirst();
 
         // Kick off the search for an optimal schedule.
         doRosteringSearch(schedule, preferences, employeesHardestToAssignFirst, shiftsToAssign, 0);
@@ -29,7 +29,7 @@ public class Rostering {
     }
 
     private void doRosteringSearch(final Schedule schedule, final Preferences preferences,
-                                   final Stack<Preferences.Employee> employeesNeedingAssignment,
+                                   final Stack<Employee> employeesNeedingAssignment,
                                    final Stack<Slot> shiftsToAssign, final int pain) {
 
         if (pain > schedule.getPain()) {
@@ -48,7 +48,7 @@ public class Rostering {
         // See if we still need to assign any employees to at least one day.
         if (!employeesNeedingAssignment.isEmpty()) {
 
-            final Preferences.Employee employeeNeedingAssignment = employeesNeedingAssignment.pop();
+            final Employee employeeNeedingAssignment = employeesNeedingAssignment.pop();
 
             final List<Slot> possibleSlots = schedule.getPossibleShifts(employeeNeedingAssignment);
             for (Slot slot : possibleSlots) {
@@ -61,7 +61,7 @@ public class Rostering {
         // Now start assigning shifts by day.
         Slot slot = shiftsToAssign.pop();
         if (!schedule.isAssigned(slot)) {
-            for (Preferences.Employee employee : preferences.getAvailableEmployees(slot)) {
+            for (Employee employee : preferences.getAvailableEmployees(slot)) {
                 if (schedule.canAssign(employee, slot)) {
                     int newPain = schedule.assign(employee, slot);
                     doRosteringSearch(schedule, preferences, employeesNeedingAssignment, shiftsToAssign, pain + newPain);
