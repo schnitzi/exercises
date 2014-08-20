@@ -43,7 +43,8 @@ public class Rostering {
                                  final Stack<Slot> slotsToAssign, final int pain) {
 
         System.out.println("slots left = " + slotsToAssign.size());
-        System.out.println(schedule);
+        System.out.println("pain = " + pain);
+//        System.out.println(schedule);
 
         if (pain > bestPain) {
             // Already worse than our current best effort; no point continue search down

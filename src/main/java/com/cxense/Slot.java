@@ -42,6 +42,7 @@ public class Slot {
 
         if (day != slot.day) return false;
         if (shift != slot.shift) return false;
+        if (index != slot.index) return false;
 
         return true;
     }

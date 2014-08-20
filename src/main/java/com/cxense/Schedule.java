@@ -94,7 +94,7 @@ public class Schedule {
     public String toString() {
         final StringBuilder builder = new StringBuilder("Schedule{pain=" )
                 .append(pain).append(", filled=").append(filled)
-                .append("assignments=\n");
+                .append(" assignments=\n");
         for (int day=0; day<7; day++) {
             builder.append(DAY_NAMES[day]).append("\n");
             for (Slot.Shift shift : Slot.Shift.values()) {

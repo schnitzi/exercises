@@ -31,10 +31,6 @@ public class Employee {
         return dayPreferences[day];
     }
 
-    public boolean canWork(final Slot slot) {
-        return dayPreferences[slot.getDay()] != Preferences.PreferenceForDay.NONE;
-    }
-
     @Override
     public String toString() {
         return name + " (" + (experienced ? "Y" : "N") + ")";
