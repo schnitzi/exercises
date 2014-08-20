@@ -11,8 +11,8 @@ public class Schedule {
     private static final int PAIN_FOR_WORKING_NOT_PREFERRED_SHIFT = 1;
     private static final String DAY_NAMES[] = new String[] {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
-    // The assignments of employee to shift, for each day of the week, for both shifts.
-    final Map<Slot, Set<Employee>> assignments = new HashMap<>();
+    // The assignments of employee to slots, for all slots of the week.
+    final Map<Slot, Employee> assignments = new HashMap<>();
 
     private int pain = Integer.MAX_VALUE;
     private boolean filled;
@@ -42,49 +42,42 @@ public class Schedule {
         List<Slot> possibleSlots = new ArrayList<>();
         for (int day=0; day<7; day++) {
 
-            final Slot earlySlot = new Slot(day, Slot.Shift.EARLY);
-            final Slot lateSlot = new Slot(day, Slot.Shift.LATE);
-            Set<Employee> currentEarly = assignments.get(earlySlot);
-            Set<Employee> currentLate = assignments.get(lateSlot);
-
-            // Check the early shift.
-            if (currentEarly == null && !employee.equals(currentLate) && employee.canWork(earlySlot)) {
-                possibleSlots.add(earlySlot);
-            }
-
-            // Check the late shift.
-            if (currentLate == null && !employee.equals(currentEarly) && employee.canWork(lateSlot)) {
-                possibleSlots.add(lateSlot);
+            for (Slot.Shift shift : Slot.Shift.values()) {
+                for (int index=0; index<2; index++) {
+                    final Slot slot = new Slot(day, shift, index);
+                    if (assignments.get(slot) == null && !employee.equals(assignments.get(slot.getOtherIndexOnSameShift()))) {
+                        possibleSlots.add(slot);
+                    }
+                }
             }
         }
         return possibleSlots;
     }
 
     public int assign(final Employee employee, final Slot slot) {
-        Set<Employee> current = assignments.get(slot);
-        if (current == null) {
-            current = new HashSet<>();
-            assignments.put(slot, current);
-        }
-        
+
+        assignments.put(slot, employee);
+
+        // Compute the pain this assignment caused.
         int pain = 0;
-        if (!employee.experienced  && !current.isEmpty()) {
-            assert current.size() == 1;
-            Employee otherEmployeeOnShift = current.iterator().next();
-            if (!otherEmployeeOnShift.experienced) {
-                pain += PAIN_FOR_TWO_INEXPERIENCED_ON_SAME_SHIFT;
-            }
+
+        // First, the pain of having two inexperienced employees on the same shift.
+        final Employee otherEmployeeSameSlot = assignments.get(slot.getOtherIndexOnSameShift());
+        if (!employee.experienced && otherEmployeeSameSlot != null && !otherEmployeeSameSlot.experienced) {
+            pain += PAIN_FOR_TWO_INEXPERIENCED_ON_SAME_SHIFT;
         }
+
+        // Then, the pain of assigning an employee to a shift that's not his/her preferred shift.
         Preferences.PreferenceForDay preferenceForDay = employee.getPreference(slot.getDay());
         if ((slot.getShift() == Slot.Shift.EARLY && preferenceForDay == Preferences.PreferenceForDay.LATE) ||
                 (slot.getShift() == Slot.Shift.LATE && preferenceForDay == Preferences.PreferenceForDay.EARLY)) {
             pain += PAIN_FOR_WORKING_NOT_PREFERRED_SHIFT;
         }
-        current.add(employee);
+
         return pain;
     }
 
-    public void unassign(final Slot slot) {
+    public void unassign(final Slot slot, Employee employee) {
         assignments.remove(slot);
     }
 
@@ -94,7 +87,7 @@ public class Schedule {
 
     public boolean canAssign(final Employee employee, final Slot slot) {
         return !assignments.containsKey(slot) &&
-                !employee.equals(assignments.get(slot.getOtherShift()));
+                !employee.equals(assignments.get(slot.getOtherIndexOnSameShift()));
     }
 
     @Override
@@ -103,22 +96,26 @@ public class Schedule {
                 .append(pain).append(", filled=").append(filled)
                 .append("assignments=\n");
         for (int day=0; day<7; day++) {
-            builder.append(DAY_NAMES[day]).append("\n  early=");
-            Set<Employee> early = assignments.get(new Slot(day, Slot.Shift.EARLY));
-            if (early != null) {
-                for (Employee employee : early) {
-                    builder.append(employee).append("\n");
+            builder.append(DAY_NAMES[day]).append("\n");
+            for (Slot.Shift shift : Slot.Shift.values()) {
+                builder.append(shift).append("=");
+                for (int index=0; index<2; index++) {
+                    Employee employee = assignments.get(new Slot(day, shift, index));
+                    builder.append(employee).append(" ");
                 }
-            }
-            builder.append("\n  late=");
-            Set<Employee> late = assignments.get(new Slot(day, Slot.Shift.LATE));
-            if (late != null) {
-                for (Employee employee : late) {
-                    builder.append(employee).append("\n");
-                }
+                builder.append("\n");
             }
         }
         builder.append('}');
         return builder.toString();
+    }
+
+    public Schedule copy() {
+
+        final Schedule copy = new Schedule();
+        copy.filled = filled;
+        copy.pain = pain;
+        copy.assignments.putAll(assignments);
+        return copy;
     }
 }

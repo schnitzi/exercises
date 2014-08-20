@@ -1,7 +1,8 @@
 package com.cxense;
 
 /**
- * A day (0=Monday to 6=Sunday) plus a time (early or late).
+ * A tuple consisting of a day (0=Monday to 6=Sunday), a time (early or late), and an index
+ * (0 or 1, representing the two spaces that need to be filled on a shift).
  */
 public class Slot {
 
@@ -12,10 +13,12 @@ public class Slot {
 
     private final int day;
     private final Shift shift;
+    private final int index;
 
-    public Slot(final int day, final Shift shift) {
+    public Slot(final int day, final Shift shift, int index) {
         this.day = day;
         this.shift = shift;
+        this.index = index;
     }
 
     public int getDay() {
@@ -26,8 +29,8 @@ public class Slot {
         return shift;
     }
 
-    public Slot getOtherShift() {
-        return new Slot(day, shift == Shift.EARLY ? Shift.LATE : Shift.EARLY);
+    public Slot getOtherIndexOnSameShift() {
+        return new Slot(day, shift, 1-index);
     }
 
     @Override

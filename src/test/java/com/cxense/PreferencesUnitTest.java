@@ -1,6 +1,6 @@
 package com.cxense;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -10,13 +10,13 @@ import java.io.File;
  */
 public class PreferencesUnitTest {
 
-    private static final Rostering ROSTERING = new Rostering();
 
     @Test
     public void testExampleData() throws Exception {
 
         final Preferences preferences = new Preferences(new File("src/test/resources/rostering.sample.in"));
-        Schedule schedule = ROSTERING.schedule(preferences);
+        final Rostering rostering = new Rostering(preferences);
+        Schedule schedule = rostering.findBestSchedule();
         Assert.assertTrue(schedule.isFilled());
         Assert.assertEquals(schedule.getPain(), 0);
         System.out.println(schedule);

@@ -15,7 +15,7 @@ public class Preferences {
             return Integer.compare(o1.getDifficulty(), o2.getDifficulty());
         }
     };
-    private final Map<Slot, List<Employee>> availableEmployeesBySlot = new HashMap<>();
+    private final List<Employee>[] availableEmployeesByDay = new List[7];
 
     public Preferences(final File file) throws IOException {
 
@@ -41,6 +41,13 @@ public class Preferences {
                 addEmployee(name, experienced, dayPreferences);
             }
         }
+
+        for (int day=0; day<7; day++) {
+            if (availableEmployeesByDay[day] == null) {
+                System.err.println("No available employees for day " + day);
+                System.exit(-1);
+            }
+        }
     }
 
     private void addEmployee(String name, boolean experienced, PreferenceForDay[] dayPreferences) {
@@ -49,17 +56,16 @@ public class Preferences {
         for (int day=0; day<7; day++) {
             PreferenceForDay dayPreference = dayPreferences[day];
             if (dayPreference != PreferenceForDay.NONE) {
-                saveEmployeeAsAvailable(employee, new Slot(day, Slot.Shift.EARLY));
-                saveEmployeeAsAvailable(employee, new Slot(day, Slot.Shift.LATE));
+                saveEmployeeAsAvailable(employee, day);
             }
         }
     }
 
-    private void saveEmployeeAsAvailable(final Employee employee, final Slot slot) {
-        List<Employee> employees = availableEmployeesBySlot.get(slot);
+    private void saveEmployeeAsAvailable(final Employee employee, final int day) {
+        List<Employee> employees = availableEmployeesByDay[day];
         if (employees == null) {
             employees = new ArrayList<>();
-            availableEmployeesBySlot.put(slot, employees);
+            availableEmployeesByDay[day] = employees;
         }
         employees.add(employee);
     }
@@ -70,18 +76,23 @@ public class Preferences {
         return employeesPickiestFirst;
     }
 
-    public List<Employee> getAvailableEmployees(Slot slot) {
-        return availableEmployeesBySlot.get(slot);
+    public List<Employee> getAvailableEmployees(final int day) {
+        return availableEmployeesByDay[day];
     }
 
     public Stack<Slot> getSlotsHardestToAssignFirst() {
         Stack<Slot> slots = new Stack<>();
-        slots.addAll(availableEmployeesBySlot.keySet());
+        for (int day=0; day<7; day++) {
+            slots.add(new Slot(day, Slot.Shift.EARLY, 0));
+            slots.add(new Slot(day, Slot.Shift.EARLY, 1));
+            slots.add(new Slot(day, Slot.Shift.LATE, 0));
+            slots.add(new Slot(day, Slot.Shift.LATE, 1));
+        }
         Collections.sort(slots, new Comparator<Slot>() {
             @Override
             public int compare(Slot o1, Slot o2) {
-                return Integer.compare(availableEmployeesBySlot.get(o1).size(),
-                        availableEmployeesBySlot.get(o2).size());
+                return Integer.compare(availableEmployeesByDay[o1.getDay()].size(),
+                        availableEmployeesByDay[o2.getDay()].size());
             }
         });
         return slots;
