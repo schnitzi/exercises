@@ -6,15 +6,16 @@ package com.cxense;
  */
 public class Slot {
 
+
+
     public enum Shift {
         EARLY,
-        LATE
-    };
-
+        LATE;
+    }
     private final int day;
+
     private final Shift shift;
     private final int index;
-
     public Slot(final int day, final Shift shift, int index) {
         this.day = day;
         this.shift = shift;
@@ -29,7 +30,11 @@ public class Slot {
         return shift;
     }
 
-    public Slot getOtherIndexOnSameShift() {
+    public int getIndex() {
+        return index;
+    }
+
+    public Slot getOtherSlotOnSameShift() {
         return new Slot(day, shift, 1-index);
     }
 
@@ -51,6 +56,7 @@ public class Slot {
     public int hashCode() {
         int result = day;
         result = 31 * result + shift.ordinal();
+        result = 31 * result + index;
         return result;
     }
 }

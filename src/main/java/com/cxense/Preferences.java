@@ -80,21 +80,26 @@ public class Preferences {
         return availableEmployeesByDay[day];
     }
 
-    public Stack<Slot> getSlotsHardestToAssignFirst() {
-        Stack<Slot> slots = new Stack<>();
+    public SortedSet<Slot> getSlotsHardestToAssignFirst() {
+        SortedSet<Slot> slots = new TreeSet<>(new Comparator<Slot>() {
+            @Override
+            public int compare(Slot o1, Slot o2) {
+                int compare = Integer.compare(availableEmployeesByDay[o1.getDay()].size(),
+                        availableEmployeesByDay[o2.getDay()].size());
+                if (compare != 0) return compare;
+                compare = Integer.compare(o1.getDay(), o2.getDay());
+                if (compare != 0) return compare;
+                compare = o1.getShift().compareTo(o2.getShift());
+                if (compare != 0) return compare;
+                return Integer.compare(o1.getIndex(), o2.getIndex());
+            }
+        });
         for (int day=0; day<7; day++) {
             slots.add(new Slot(day, Slot.Shift.EARLY, 0));
             slots.add(new Slot(day, Slot.Shift.EARLY, 1));
             slots.add(new Slot(day, Slot.Shift.LATE, 0));
             slots.add(new Slot(day, Slot.Shift.LATE, 1));
         }
-        Collections.sort(slots, new Comparator<Slot>() {
-            @Override
-            public int compare(Slot o1, Slot o2) {
-                return Integer.compare(availableEmployeesByDay[o1.getDay()].size(),
-                        availableEmployeesByDay[o2.getDay()].size());
-            }
-        });
         return slots;
     }
 

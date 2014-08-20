@@ -45,7 +45,7 @@ public class Schedule {
             for (Slot.Shift shift : Slot.Shift.values()) {
                 for (int index=0; index<2; index++) {
                     final Slot slot = new Slot(day, shift, index);
-                    if (assignments.get(slot) == null && !employee.equals(assignments.get(slot.getOtherIndexOnSameShift()))) {
+                    if (assignments.get(slot) == null && !employee.equals(assignments.get(slot.getOtherSlotOnSameShift()))) {
                         possibleSlots.add(slot);
                     }
                 }
@@ -62,7 +62,7 @@ public class Schedule {
         int pain = 0;
 
         // First, the pain of having two inexperienced employees on the same shift.
-        final Employee otherEmployeeSameSlot = assignments.get(slot.getOtherIndexOnSameShift());
+        final Employee otherEmployeeSameSlot = assignments.get(slot.getOtherSlotOnSameShift());
         if (!employee.experienced && otherEmployeeSameSlot != null && !otherEmployeeSameSlot.experienced) {
             pain += PAIN_FOR_TWO_INEXPERIENCED_ON_SAME_SHIFT;
         }
@@ -77,17 +77,21 @@ public class Schedule {
         return pain;
     }
 
-    public void unassign(final Slot slot, Employee employee) {
+    public void unassign(final Slot slot) {
         assignments.remove(slot);
-    }
-
-    public boolean isAssigned(final Slot slot) {
-        return assignments.containsKey(slot);
     }
 
     public boolean canAssign(final Employee employee, final Slot slot) {
         return !assignments.containsKey(slot) &&
-                !employee.equals(assignments.get(slot.getOtherIndexOnSameShift()));
+                employee.getPreference(slot.getDay()) != Preferences.PreferenceForDay.NONE &&
+                !isAssignedForDay(employee, slot.getDay());
+    }
+
+    public boolean isAssignedForDay(final Employee employee, final int day) {
+        return employee.equals(assignments.get(new Slot(day, Slot.Shift.EARLY, 0))) ||
+                employee.equals(assignments.get(new Slot(day, Slot.Shift.EARLY, 1))) ||
+                employee.equals(assignments.get(new Slot(day, Slot.Shift.LATE, 0))) ||
+                employee.equals(assignments.get(new Slot(day, Slot.Shift.LATE, 1)));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.cxense;
 
 import java.util.List;
+import java.util.SortedSet;
 import java.util.Stack;
 
 /**
@@ -12,43 +13,44 @@ public class Rostering {
     private Schedule bestSchedule;
     private int bestPain = Integer.MAX_VALUE;
     private final Preferences preferences;
+    private final Stack<Employee> employeesWithoutAssignments;
+    private final SortedSet<Slot> slotsToAssign;
 
     public Rostering(Preferences preferences) {
         this.preferences = preferences;
-    }
-
-    public Schedule findBestSchedule() {
 
         // We could choose to loop through the days, trying to assign employees to each, but better
         // to try to satisfy the harder requirement that every employee gets at least one scheduled
         // day first.  So get the list of employees, pickiest first.
-        final Stack<Employee> employeesHardestToAssignFirst = new Stack<>();
-        employeesHardestToAssignFirst.addAll(preferences.getEmployeesHardestToAssignFirst());
+        employeesWithoutAssignments = new Stack<>();
+        employeesWithoutAssignments.addAll(preferences.getEmployeesHardestToAssignFirst());
 
         // Create the schedule to populate.
         schedule = new Schedule();
 
         // Gather all the shifts we have to assign, with the ones with the fewest employee options first.
-        Stack<Slot> slotsToAssign = preferences.getSlotsHardestToAssignFirst();
+        slotsToAssign = preferences.getSlotsHardestToAssignFirst();
+    }
+
+    public Schedule findBestSchedule() {
 
         // Kick off the search for an optimal schedule.
-        bestFirstSearch(employeesHardestToAssignFirst, slotsToAssign, 0);
+        bestFirstSearch(0);
 
+        // And return it.
         return bestSchedule;
     }
 
-    // TODO all params necessary?
+    private void bestFirstSearch(final int pain) {
 
-    private void bestFirstSearch(final Stack<Employee> employeesWithoutAssignments,
-                                 final Stack<Slot> slotsToAssign, final int pain) {
-
+        // TODO clean
         System.out.println("slots left = " + slotsToAssign.size());
         System.out.println("pain = " + pain);
 //        System.out.println(schedule);
 
-        if (pain > bestPain) {
-            // Already worse than our current best effort; no point continue search down
-            // this line.
+        if (pain >= bestPain) {
+            // Already can't beat our current best effort; no point continuing search down
+            // this path.
             return;
         }
 
@@ -67,26 +69,28 @@ public class Rostering {
             final Employee employee = employeesWithoutAssignments.pop();
             final List<Slot> possibleSlots = schedule.getPossibleShifts(employee);
             for (Slot slot : possibleSlots) {
-                if (schedule.canAssign(employee, slot)) {
-                    int newPain = schedule.assign(employee, slot);
-                    bestFirstSearch(employeesWithoutAssignments, slotsToAssign, pain + newPain);
-                    schedule.unassign(slot, employee);
-                }
+                slotsToAssign.remove(slot);
+                tryToAssign(employee, slot, pain);
+                slotsToAssign.add(slot);
             }
             employeesWithoutAssignments.push(employee);
         } else {
-            // Now start assigning shifts by day.
-            Slot slot = slotsToAssign.pop();
-            if (!schedule.isAssigned(slot)) {
-                for (Employee employee : preferences.getAvailableEmployees(slot.getDay())) {
-                    if (schedule.canAssign(employee, slot)) {
-                        int newPain = schedule.assign(employee, slot);
-                        bestFirstSearch(employeesWithoutAssignments, slotsToAssign, pain + newPain);
-                        schedule.unassign(slot, employee);
-                    }
-                }
+
+            // All employees have at least one shift, so start assigning shifts by day.
+            Slot slot = slotsToAssign.first();
+            slotsToAssign.remove(slot);
+            for (Employee employee : preferences.getAvailableEmployees(slot.getDay())) {
+                tryToAssign(employee, slot, pain);
             }
-            slotsToAssign.push(slot);
+            slotsToAssign.add(slot);
+        }
+    }
+
+    private void tryToAssign(final Employee employee, final Slot slot, final int pain) {
+        if (schedule.canAssign(employee, slot)) {
+            final int newPain = schedule.assign(employee, slot);
+            bestFirstSearch(pain + newPain);
+            schedule.unassign(slot);
         }
     }
 }
