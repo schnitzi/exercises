@@ -43,9 +43,9 @@ public class Rostering {
 
     private void bestFirstSearch(final int pain) {
 
-        // TODO clean
-        System.out.println("slots left = " + slotsToAssign.size());
-        System.out.println("pain = " + pain);
+//        // TODO clean
+//        System.out.println("slots left = " + slotsToAssign.size());
+//        System.out.println("pain = " + pain);
 //        System.out.println(schedule);
 
         if (pain >= bestPain) {
@@ -57,9 +57,10 @@ public class Rostering {
         if (slotsToAssign.isEmpty()) {
             // Success!
             bestSchedule = schedule.copy();
-            bestSchedule.setFilled(true);
             bestSchedule.setPain(pain);
             bestPain = pain;
+            System.out.println("New best found:");
+            System.out.println(bestSchedule);
             return;
         }
 
@@ -67,7 +68,7 @@ public class Rostering {
         if (!employeesWithoutAssignments.isEmpty()) {
 
             final Employee employee = employeesWithoutAssignments.pop();
-            final List<Slot> possibleSlots = schedule.getPossibleShifts(employee);
+            final List<Slot> possibleSlots = schedule.getPossibleSlots(employee);
             for (Slot slot : possibleSlots) {
                 slotsToAssign.remove(slot);
                 tryToAssign(employee, slot, pain);

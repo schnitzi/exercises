@@ -35,4 +35,21 @@ public class Employee {
     public String toString() {
         return name + " (" + (experienced ? "Y" : "N") + ")";
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Employee employee = (Employee) o;
+
+        if (name != null ? !name.equals(employee.name) : employee.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

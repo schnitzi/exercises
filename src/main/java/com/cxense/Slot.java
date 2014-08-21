@@ -6,11 +6,12 @@ package com.cxense;
  */
 public class Slot {
 
-
-
+    /**
+     * Enum for early versus late shift.
+     */
     public enum Shift {
         EARLY,
-        LATE;
+        LATE
     }
     private final int day;
 
