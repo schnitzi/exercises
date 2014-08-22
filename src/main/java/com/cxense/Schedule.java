@@ -17,6 +17,10 @@ public class Schedule {
      */
     final Map<Slot, Employee> assignments = new HashMap<>();
     /**
+     * The full list of employees.
+     */
+    final List<Employee> employees;
+    /**
      * The total "pain" of this schedule.  Low pain means we did a better job scheduling.
      */
     private int pain = Integer.MAX_VALUE;
@@ -24,6 +28,10 @@ public class Schedule {
      * The number of days each employee has been assigned.
      */
     private Map<Employee, Integer> employeeAssignmentCounts = new HashMap<>();
+
+    public Schedule(final List<Employee> employees) {
+        this.employees = employees;
+    }
 
 
     public void setPain(int pain) {
@@ -102,7 +110,21 @@ public class Schedule {
         return getAssignmentCount(employee) < MAX_ASSIGNMENTS_PER_WEEK &&
                 !assignments.containsKey(slot) &&
                 employee.getPreference(slot.getDay()) != Preferences.PreferenceForDay.NONE &&
-                !isAssignedForDay(employee, slot.getDay());
+                !isAssignedForDay(employee, slot.getDay()) &&
+                !(assignmentCompletesDay(employee, slot) &&
+                  isLastAvailableDayForUnassignedEmployee(slot.getDay(), employee));
+    }
+
+    private boolean isLastAvailableDayForUnassignedEmployee(final int dayToCheck, final Employee employee, final Preferences preferences) {
+        for (Employee otherEmployee : employees) {
+            if (!employee.equals(otherEmployee) && getAssignmentCount(otherEmployee) == 0) {
+                for (int day=0; day<7; day++) {
+                    if (day != dayToCheck && !isComplete(day)) {
+                        SortedSet<Employee> available = preferences.getAvailableEmployees(day);
+                    }
+                }
+            }
+        }
     }
 
     public boolean isAssignedForDay(final Employee employee, final int day) {
@@ -133,7 +155,7 @@ public class Schedule {
 
     public Schedule copy() {
 
-        final Schedule copy = new Schedule();
+        final Schedule copy = new Schedule(employees);
         copy.pain = pain;
         copy.assignments.putAll(assignments);
         return copy;

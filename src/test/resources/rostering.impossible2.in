@@ -1,0 +1,11 @@
+# An set of preferences that's impossible because one person has no days selected.
+
+Employee Name	Experienced?	Mon	Tue	Wed 	Thur	Fri	Sat	Sun
+Phil	Y	Either	Either	Either	Either	Either	Either	Either
+Dave	N	Either	Either	Either	Either	Either	Either	Either
+Sandra	N	None	None	None	None	None	None	None
+Belinda	Y	Either	Either	Either	Either	Either	Either	Either
+Roger	Y	Either	Either	Either	Either	Either	Either	Either
+Stef	N	Either	Either	Either	Either	Either	Either	Either
+Cassie	Y	Either	Either	Either	Either	Either	Either	Either
+Bill	N	Either	Either	Either	Either	Either	Either	Either

@@ -15,6 +15,10 @@ public class Employee {
         this.dayPreferences = dayPreferences;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public int getDifficulty() {
         int difficulty = 0;
         for (Preferences.PreferenceForDay dayPreference : dayPreferences) {
