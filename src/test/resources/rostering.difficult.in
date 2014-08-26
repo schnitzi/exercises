@@ -1,0 +1,12 @@
+# An set of preferences that's difficult because one day has only four people that can work it,
+# and they all want to work the early shift.
+
+Employee Name	Experienced?	Mon	Tue	Wed 	Thur	Fri	Sat	Sun
+Phil	Y	Either	Either	Either	Either	Early	Either	Either
+Dave	N	Either	Either	Either	Either	None	Either	Either
+Sandra	N	Either	Either	Either	Either	None	Either	Either
+Belinda	Y	Either	Either	Either	Either	Early	Either	Either
+Roger	Y	Either	Either	Either	Either	Early	Either	Either
+Stef	N	Either	Either	Either	Either	None	Either	Either
+Cassie	Y	Either	Either	Either	Either	None	Either	Either
+Bill	N	Either	Either	Either	Either	Early	Either	Either

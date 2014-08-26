@@ -34,39 +34,37 @@ public class Rostering {
 
     private void bestFirstSearch(final int pain) {
 
-//        // TODO clean
-//        System.out.println("slots left = " + slotsToAssign.size());
-//        System.out.println("pain = " + pain);
-//        System.out.println(schedule);
-
+        // See if we already can't beat our current best effort; if so, no point continuing
+        // search down this path.
         if (pain >= bestPain) {
-            // Already can't beat our current best effort; no point continuing search down
-            // this path.
             return;
         }
 
+        // Have we filled the schedule?
         if (slotsToAssign.isEmpty()) {
             // Success!
             bestSchedule = schedule.copy();
             bestSchedule.setPain(pain);
             bestPain = pain;
-            System.out.println("New best found:");
-            System.out.println(bestSchedule);
+            System.out.println("New best found: " + bestSchedule);
             return;
         }
 
+        // Otherwise, try to fill the current hardest slot, and recurse.
         Slot slot = slotsToAssign.pop();
         for (Employee employee : preferences.getAvailableEmployees(slot.getDay())) {
-            tryToAssign(employee, slot, pain);
+            if (schedule.canAssign(employee, slot)) {
+
+                // do the assignment
+                final int newPain = schedule.assign(employee, slot);
+
+                // keep searching
+                bestFirstSearch(pain + newPain);
+
+                // undo the assignment
+                schedule.unassign(slot);
+            }
         }
         slotsToAssign.push(slot);
-    }
-
-    private void tryToAssign(final Employee employee, final Slot slot, final int pain) {
-        if (schedule.canAssign(employee, slot)) {
-            final int newPain = schedule.assign(employee, slot);
-            bestFirstSearch(pain + newPain);
-            schedule.unassign(slot);
-        }
     }
 }

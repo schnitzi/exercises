@@ -17,7 +17,8 @@ public class PreferencesUnitTest {
         doTest("src/test/resources/rostering.easy.in", 0);
         doTest("src/test/resources/rostering.impossible1.in", -1);
         doTest("src/test/resources/rostering.impossible2.in", -1);
-//        doTest("src/test/resources/rostering.sample.in", 3);
+        doTest("src/test/resources/rostering.difficult.in", 2*Schedule.PAIN_FOR_WORKING_NOT_PREFERRED_SHIFT);
+        doTest("src/test/resources/rostering.sample.in", 2*Schedule.PAIN_FOR_TWO_INEXPERIENCED_ON_SAME_SHIFT);
     }
 
     private void doTest(final String filename, final int expectedPain) throws Exception {
@@ -28,13 +29,11 @@ public class PreferencesUnitTest {
         Schedule schedule = rostering.findBestSchedule();
         if (expectedPain == -1) {
             // Not expected to be solvable.
-            Assert.assertNull(schedule, "Expected no solution for " + filename);
+            Assert.assertNull(schedule, "Expected no solution for " + filename + "; got " + schedule);
         } else {
             Assert.assertNotNull(schedule, "Expected a solution for " + filename);
             Assert.assertEquals(schedule.getPain(), expectedPain, "Unexpected pain value");
             System.out.println(schedule);
         }
     }
-
-    // TODO make sure employee pickiness compares correctly
 }

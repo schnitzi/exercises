@@ -19,6 +19,9 @@ public class Employee {
         return name;
     }
 
+    /**
+     * Returns the difficulty of this employee; a higher number means harder to assign.
+     */
     public int getDifficulty() {
         int difficulty = 0;
         for (Preferences.PreferenceForDay dayPreference : dayPreferences) {

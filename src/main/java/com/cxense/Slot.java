@@ -17,6 +17,7 @@ public class Slot {
 
     private final Shift shift;
     private final int index;
+
     public Slot(final int day, final Shift shift, int index) {
         this.day = day;
         this.shift = shift;

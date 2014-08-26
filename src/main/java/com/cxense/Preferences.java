@@ -8,6 +8,9 @@ import java.util.*;
  */
 public class Preferences {
 
+    /**
+     * Comparator for sorting employees by pickiness.
+     */
     private static final Comparator<Employee> PICKIEST = new Comparator<Employee>() {
         @Override
         public int compare(Employee o1, Employee o2) {
@@ -16,13 +19,14 @@ public class Preferences {
             return o1.getName().compareTo(o2.getName());
         }
     };
-
+    /**
+     * The list of employees.
+     */
     private final List<Employee> employees = new ArrayList<>();
+    /**
+     * The set of available employees by day.
+     */
     private final SortedSet<Employee>[] availableEmployeesByDay = new SortedSet[7];
-
-    public List<Employee> getEmployees() {
-        return employees;
-    }
 
     public Preferences(final File file) throws IOException {
 
@@ -57,6 +61,10 @@ public class Preferences {
         }
     }
 
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
     private void addEmployee(String name, boolean experienced, PreferenceForDay[] dayPreferences) {
         final Employee employee = new Employee(name, experienced, dayPreferences);
         employees.add(employee);
@@ -77,10 +85,16 @@ public class Preferences {
         employees.add(employee);
     }
 
+    /**
+     * Returns the list of available employees for a given day.
+     */
     public SortedSet<Employee> getAvailableEmployees(final int day) {
         return availableEmployeesByDay[day];
     }
 
+    /**
+     * Retrieves the list of slots, in order of their difficulty to assign.
+     */
     public Stack<Slot> getSlotsHardestToAssignFirst() {
         SortedSet<Slot> slots = new TreeSet<>(new Comparator<Slot>() {
             @Override
@@ -107,6 +121,9 @@ public class Preferences {
         return stack;
     }
 
+    /**
+     * Enum for employee preference for a given day.
+     */
     public enum PreferenceForDay {
         NONE,
         EITHER,
