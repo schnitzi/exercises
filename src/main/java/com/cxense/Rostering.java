@@ -46,7 +46,7 @@ public class Rostering {
             bestSchedule = schedule.copy();
             bestSchedule.setPain(pain);
             bestPain = pain;
-            System.out.println("New best found: " + bestSchedule);
+            // System.out.println("New best found: " + bestSchedule);
             return;
         }
 

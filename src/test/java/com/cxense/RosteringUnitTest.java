@@ -6,9 +6,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Unit test for {@link Preferences}.
+ * Unit test for {@link Rostering}.
  */
-public class PreferencesUnitTest {
+public class RosteringUnitTest {
 
 
     @Test
@@ -30,6 +30,7 @@ public class PreferencesUnitTest {
         if (expectedPain == -1) {
             // Not expected to be solvable.
             Assert.assertNull(schedule, "Expected no solution for " + filename + "; got " + schedule);
+            System.out.println("Unsolveable.");
         } else {
             Assert.assertNotNull(schedule, "Expected a solution for " + filename);
             Assert.assertEquals(schedule.getPain(), expectedPain, "Unexpected pain value");

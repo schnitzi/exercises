@@ -96,14 +96,7 @@ public class Schedule {
         // assigned to, that's bad.
         for (Employee employee : employees) {
             if (getAssignmentCount(employee) == 0) {
-                boolean stillHasAvailableSlot = false;
-                for (Slot slot : getPossibleSlots(employee)) {
-                    if (assignments.get(slot) == null) {
-                        stillHasAvailableSlot = true;
-                        break;
-                    }
-                }
-                if (!stillHasAvailableSlot) {
+                if (!hasAnyAvailableSlots(employee)) {
                     return Integer.MAX_VALUE;
                 }
             }
@@ -124,6 +117,15 @@ public class Schedule {
         }
 
         return pain;
+    }
+
+    private boolean hasAnyAvailableSlots(final Employee employee) {
+        for (Slot slot : getPossibleSlots(employee)) {
+            if (assignments.get(slot) == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
